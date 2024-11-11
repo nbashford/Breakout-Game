@@ -10,9 +10,10 @@ from ball import Ball  # the ball
 
 # game setup variables
 screen_size = 1000, 700
-lives = 3
+lives = 7
 columns = 10
-rows = 5
+# rows = 5
+rows = 2
 
 # create tk screen and set up
 screen = Screen()
@@ -56,19 +57,55 @@ def ball_start():
     ball_on_pad = False
 
 
+def end_game():
+    """
+    ends the app
+    """
+    screen.bye()
+
+
 # event binding
 screen.listen()
 screen.onkey(move_left,"Left")
 screen.onkey(move_right, "Right")
 screen.onkey(ball_start, "space")
+screen.onkey(end_game, "n")
 
 # variables for game functionality
 ball_on_pad = True
+# original_ball_speed = 0.03
+original_ball_speed = 0.015
+ball_speed = original_ball_speed
+# ball_speed = 0.015
 play = True
 
 while play:
-    time.sleep(0.03)  # initial speed of the game
+    time.sleep(ball_speed)  # initial speed of the game
     screen.update()
+
+    # if all lives are lost
+    if score.lives == 0:
+        # clear screen and show game over text
+        bricks.remove_all_bricks()
+        screen.update()
+        score.game_over()
+        screen.update()
+        time.sleep(5)  # game will restart in 5 unless presses 'q'
+        # place items in starting position
+        paddle.starting_position()
+        ball.starting_position()
+        ball_on_pad = True
+        # reset and display text
+        score.reset_level()
+        score.reset_score()
+        score.lives = lives
+        score.display_all_texts()
+        # add the new bricks
+        bricks.add_bricks()
+        bricks_y_coordinates = bricks.get_brick_y_axis()
+        bricks_x_coordinates = bricks.get_brick_x_axis()
+        # set to original ball speed
+        ball_speed = original_ball_speed
 
     # if ball is moving
     if not ball_on_pad:
@@ -99,7 +136,7 @@ while play:
             ball_on_pad = True  # update variable
 
         # functionality to remove bricks if ball hits
-        for i, row in enumerate(bricks.bricks_list):  # iterate over rows of bricks
+        for i, row in enumerate(bricks.bricks_list, start=0):  # iterate over rows of bricks
             # if ball moving up
             if ball.up:
                 # if ball within y-coordinate of a brick row
@@ -157,6 +194,26 @@ while play:
                                         if bricks.disable_brick(row=i, column=j+1):
                                             ball.reverse_direction("right")
                                             score.add_score()
+
+        # checking if finished current level
+        if all(value is None for row in bricks.bricks_list for value in row):
+            # put paddle and ball in starting position
+            paddle.starting_position()
+            ball.starting_position()
+            ball_on_pad = True
+            # show user next level info
+            score.add_level()
+            score.display_next_level()
+            screen.update()
+            time.sleep(3)
+            score.display_all_texts()
+            # add the new bricks
+            bricks.add_bricks()
+            bricks_y_coordinates = bricks.get_brick_y_axis()
+            bricks_x_coordinates = bricks.get_brick_x_axis()
+            # increase ball speed and activate multiball brick
+            ball_speed *= 0.95
+            bricks.add_multi_ball(score.level)
 
 
 screen.mainloop()
