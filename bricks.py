@@ -51,12 +51,15 @@ class Bricks:
         :param column: column number
         :return: True if brick removed, False if already removed
         """
+        # find a way to check if brick is multiball
+
         try:
             self.bricks_list[row][column].hideturtle()
         except AttributeError:
-            return False
+            return False, False
+        multi_ball = self.bricks_list[row][column].multi_ball_brick
         self.bricks_list[row][column] = None
-        return True
+        return True, multi_ball
 
     def remove_all_bricks(self):
         """
@@ -69,7 +72,6 @@ class Bricks:
                 except AttributeError:
                     pass
                 brick = None
-
 
     def get_brick_y_axis(self):
         """
@@ -117,7 +119,7 @@ class Brick(Turtle):
         self.shapesize(stretch_len=length_stretch,
                        stretch_wid=width_stretch)
         self.goto(x, y)
-        self.multi_ball_brick = None
+        self.multi_ball_brick = False
 
     def make_multi_ball(self):
         """

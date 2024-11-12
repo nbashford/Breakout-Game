@@ -21,8 +21,8 @@ class Ball(Turtle):
         self.goto(self.starting_coordinates)
         # set a random angle from the list of directions
         self.setheading((self.heading()+90) + random.choice(directions))
-        # variable holing if ball moving up or down
-        self.up = True
+        self.up = True  # if ball moving up or down
+        self.on_pad = True  # if ball currently on paddle
 
     def move_left(self):
         """
@@ -85,11 +85,15 @@ class Ball(Turtle):
 
         self.setheading(new_angle)  # update ball direction
 
-    def starting_position(self):
+    def starting_position(self, paddle=None):
         """
-        places ball back to starting position
+        places ball on the centre of the paddle
         """
-        self.goto(self.starting_coordinates)
+        starting_coordinates = self.starting_coordinates
+        if paddle:
+            starting_coordinates = paddle.xcor(), paddle.ycor() + 20
+        self.goto(starting_coordinates)
         self.setheading(90 + random.choice(directions))
         self.up = True
+
 
